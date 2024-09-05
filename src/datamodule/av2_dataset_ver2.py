@@ -64,28 +64,8 @@ class Av2Dataset(Dataset):
 def collate_fn(batch):
     data = {}
 
-    for key in [
-        "can_yaw_rate",
-        "can_wheel_speed",
-        "can_steering_spd",
-        "can_steering_ang",
-        "can_lateral_accel",
-        "can_longitudinal_accel",
-    ]:
-        data[key] = pad_sequence([b[key] for b in batch], batch_first=True)
-
-    if "x_scored" in batch[0]:
-        data["x_scored"] = pad_sequence(
-            [b["x_scored"] for b in batch], batch_first=True
-        )
-
-    if batch[0]["y"] is not None:
-        data["y"] = pad_sequence([b["y"] for b in batch], batch_first=True)
-        
-    if batch[0]["padding_mask"] is not None:
-        data["padding_mask"] = pad_sequence(
-            [b["padding_mask"] for b in batch], batch_first=True, padding_value=True
-        )
+    data["can_data"] = torch.cat([b["can_data"] for b in batch], dim=0)
+    data["dr_data"] = torch.cat([b["dr_data"] for b in batch], dim=0)
 
     data["scenario_id"] = [b["scenario_id"] for b in batch]
     data["track_id"] = [b["track_id"] for b in batch]

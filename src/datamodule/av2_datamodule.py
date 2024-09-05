@@ -4,7 +4,7 @@ from typing import Optional
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader as TorchDataLoader
 
-from .av2_dataset import Av2Dataset, collate_fn
+from .av2_dataset_ver2 import Av2Dataset, collate_fn
 
 
 class Av2DataModule(LightningDataModule):
@@ -34,14 +34,14 @@ class Av2DataModule(LightningDataModule):
     def setup(self, stage: Optional[str] = None) -> None:
         if not self.test:
             self.train_dataset = Av2Dataset(
-                data_root=self.data_root / self.data_folder, cached_split="train"
+                data_root=self.data_root, data_file="train_dataset.mat"
             )
             self.val_dataset = Av2Dataset(
-                data_root=self.data_root / self.data_folder, cached_split="val"
+                data_root=self.data_root, data_file="val_dataset.mat"
             )
         else:
             self.test_dataset = Av2Dataset(
-                data_root=self.data_root / self.data_folder, cached_split="test"
+                data_root=self.data_root, data_file="test_dataset.mat"
             )
 
     def train_dataloader(self):

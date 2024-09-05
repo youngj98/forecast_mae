@@ -2,9 +2,10 @@ defaults:
   - hydra: default
   - datamodule: av2
   - model: model_forecast
+  # - _self_
 
 seed: 2333
-monitor: val_loss
+monitor: val_Accuracy
 save_top_k: 10
 
 data_root:

@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchmetrics import MetricCollection
+from torchmetrics import MetricCollection, Accuracy, Precision, Recall
 
 from src.metrics import MR, minADE, minFDE
 from src.utils.optim import WarmupCosLR
@@ -52,13 +52,23 @@ class Trainer(pl.LightningModule):
         if pretrained_weights is not None:
             self.net.load_from_checkpoint(pretrained_weights)
 
+        # metrics = MetricCollection(
+        #     {
+        #         "minADE1": minADE(k=1),
+        #         "minADE6": minADE(k=6),
+        #         "minFDE1": minFDE(k=1),
+        #         "minFDE6": minFDE(k=6),
+        #         "MR": MR(),
+        #     }
+        # )
+        
         metrics = MetricCollection(
             {
-                "minADE1": minADE(k=1),
-                "minADE6": minADE(k=6),
-                "minFDE1": minFDE(k=1),
-                "minFDE6": minFDE(k=6),
-                "MR": MR(),
+                "Accuracy": Accuracy(task="binary"),
+                "Precision": Precision(task="binary"),
+                "Recall": Recall(task="binary"),
+                # "F1": F1(),
+                # "AUROC": AUROC(),
             }
         )
         self.val_metrics = metrics.clone(prefix="val_")
@@ -70,11 +80,11 @@ class Trainer(pl.LightningModule):
         with torch.no_grad():
             out = self.net(data)
         predictions, prob = self.submission_handler.format_data(
-            data, out["y_hat"], out["pi"], inference=True
+            data, out["y_hat"], out["pi"], inference=True           # 이따 출력 보고 확인
         )
         return predictions, prob
 
-    def cal_loss(self, out, data):
+    def cal_loss(self, out, data):      # 이따 출력 보고 확인
         y_hat, pi, y_hat_others = out["y_hat"], out["pi"], out["y_hat_others"]
         y, y_others = data["y"][:, 0], data["y"][:, 1:]
 
@@ -83,20 +93,20 @@ class Trainer(pl.LightningModule):
         y_hat_best = y_hat[torch.arange(y_hat.shape[0]), best_mode]
 
         agent_reg_loss = F.smooth_l1_loss(y_hat_best[..., :2], y)
-        agent_cls_loss = F.cross_entropy(pi, best_mode.detach())
+        # agent_cls_loss = F.cross_entropy(pi, best_mode.detach())
 
-        others_reg_mask = ~data["x_padding_mask"][:, 1:, 50:]
-        others_reg_loss = F.smooth_l1_loss(
-            y_hat_others[others_reg_mask], y_others[others_reg_mask]
-        )
+        # others_reg_mask = ~data["x_padding_mask"][:, 1:, 50:]
+        # others_reg_loss = F.smooth_l1_loss(
+        #     y_hat_others[others_reg_mask], y_others[others_reg_mask]
+        # )
 
-        loss = agent_reg_loss + agent_cls_loss + others_reg_loss
+        # loss = agent_reg_loss + agent_cls_loss + others_reg_loss
 
         return {
-            "loss": loss,
+            # "loss": loss,
             "reg_loss": agent_reg_loss.item(),
-            "cls_loss": agent_cls_loss.item(),
-            "others_reg_loss": others_reg_loss.item(),
+            # "cls_loss": agent_cls_loss.item(),
+            # "others_reg_loss": others_reg_loss.item(),
         }
 
     def training_step(self, data, batch_idx):
@@ -141,13 +151,13 @@ class Trainer(pl.LightningModule):
         save_dir = Path("./submission")
         save_dir.mkdir(exist_ok=True)
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-        self.submission_handler = SubmissionAv2(
-            save_dir=save_dir, filename=f"forecast_mae_{timestamp}"
-        )
+        # self.submission_handler = SubmissionAv2(
+        #     save_dir=save_dir, filename=f"forecast_mae_{timestamp}"
+        # )
 
     def test_step(self, data, batch_idx) -> None:
         out = self(data)
-        self.submission_handler.format_data(data, out["y_hat"], out["pi"])
+        self.submission_handler.format_data(data, out["y_hat"], out["pi"])  # 이따 출력 보고 확인
 
     def on_test_end(self) -> None:
         self.submission_handler.generate_submission_file()
