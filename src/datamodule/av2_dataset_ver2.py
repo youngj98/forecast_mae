@@ -20,6 +20,8 @@ class Av2Dataset(Dataset):
     ):
         super(Av2Dataset, self).__init__()
 
+        self.file_list = []
+
         if cached_split is not None:
             self.data_folder = Path(data_root) / cached_split
             self.file_list = sorted(list(self.data_folder.glob("*.pt")))
@@ -66,6 +68,14 @@ def collate_fn(batch):
 
     data["can_data"] = torch.cat([b["can_data"] for b in batch], dim=0)
     data["dr_data"] = torch.cat([b["dr_data"] for b in batch], dim=0)
+    data["can_yaw_rate"] = torch.cat([b["can_yaw_rate"] for b in batch], dim=0)
+    data["can_wheel_speed"] = torch.cat([b["can_wheel_speed"] for b in batch], dim=0)
+    data["can_steering_spd"] = torch.cat([b["can_steering_spd"] for b in batch], dim=0)
+    data["can_steering_ang"] = torch.cat([b["can_steering_ang"] for b in batch], dim=0)
+    data["can_lateral_accel"] = torch.cat([b["can_lateral_accel"] for b in batch], dim=0)
+    data["can_longitudinal_accel"] = torch.cat([b["can_longitudinal_accel"] for b in batch], dim=0)
+    data["dr_x"] = torch.cat([b["dr_x"] for b in batch], dim=0)
+    data["dr_y"] = torch.cat([b["dr_y"] for b in batch], dim=0)
 
     data["scenario_id"] = [b["scenario_id"] for b in batch]
     data["track_id"] = [b["track_id"] for b in batch]
