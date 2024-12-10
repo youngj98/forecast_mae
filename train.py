@@ -11,12 +11,16 @@ from pytorch_lightning.callbacks import (
     RichProgressBar,
 )
 from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
+from save_log import MetricLoggerCallback
 
 
-@hydra.main(version_base=None, config_path="conf", config_name="config")
+# @hydra.main(version_base=None, config_path="conf", config_name="config")
+@hydra.main(config_path="conf", config_name="config")
 def main(conf):
     pl.seed_everything(conf.seed, workers=True)
-    output_dir = HydraConfig.get().runtime.output_dir
+    
+    # output_dir = HydraConfig.get().runtime.output_dir
+    output_dir = HydraConfig.get().run.dir
 
     if conf.wandb != "disable":
         logger = WandbLogger(
@@ -41,16 +45,17 @@ def main(conf):
         RichModelSummary(max_depth=1),
         RichProgressBar(),
         LearningRateMonitor(logging_interval="epoch"),
+        MetricLoggerCallback(save_dir=output_dir, min_filename="min_values.txt"),
     ]
 
     trainer = pl.Trainer(
         logger=logger,
-        gradient_clip_val=conf.gradient_clip_val,
+        gradient_clip_val=conf. gradient_clip_val,
         gradient_clip_algorithm=conf.gradient_clip_algorithm,
         max_epochs=conf.epochs,
         accelerator="gpu",
         devices=conf.gpus,
-        strategy="ddp_find_unused_parameters_false" if conf.gpus > 1 else "auto",
+        # strategy="ddp_find_unused_parameters_false" if conf.gpus > 1 else "ddp",
         callbacks=callbacks,
         limit_train_batches=conf.limit_train_batches,
         limit_val_batches=conf.limit_val_batches,

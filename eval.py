@@ -6,7 +6,8 @@ from hydra.utils import instantiate, to_absolute_path
 from importlib import import_module
 
 
-@hydra.main(version_base=None, config_path="./conf/", config_name="config")
+# @hydra.main(version_base=None, config_path="./conf/", config_name="config")
+@hydra.main(config_path="conf", config_name="config")
 def main(conf):
     pl.seed_everything(conf.seed)
 

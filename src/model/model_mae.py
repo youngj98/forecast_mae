@@ -126,7 +126,7 @@ class ModelMAE(nn.Module):
 
 
     def forward(self, data):
-        future_padding_mask = data["padding_mask"][:, :, 50:]
+        future_padding_mask = data["x_padding_mask"]
         future_feat = torch.cat([data["y"], ~future_padding_mask[..., None]], dim=-1)
         B, N, L, D = future_feat.shape
         future_feat = future_feat.view(B * N, L, D)

@@ -12,9 +12,9 @@ class Av2DataModule(LightningDataModule):
         self,
         data_root: str,
         data_folder: str,
-        train_batch_size: int = 32,
-        val_batch_size: int = 32,
-        test_batch_size: int = 32,
+        train_batch_size: int = 2,
+        val_batch_size: int = 2,
+        test_batch_size: int = 2,
         shuffle: bool = True,
         num_workers: int = 8,
         pin_memory: bool = True,
@@ -34,14 +34,14 @@ class Av2DataModule(LightningDataModule):
     def setup(self, stage: Optional[str] = None) -> None:
         if not self.test:
             self.train_dataset = Av2Dataset(
-                data_root=self.data_root, data_file="train_dataset.mat"
+                data_root=self.data_root, data_file="train_dataset_new.mat", data_name="train_data"
             )
             self.val_dataset = Av2Dataset(
-                data_root=self.data_root, data_file="val_dataset.mat"
+                data_root=self.data_root, data_file="val_dataset_new.mat", data_name="val_data"
             )
         else:
             self.test_dataset = Av2Dataset(
-                data_root=self.data_root, data_file="test_dataset.mat"
+                data_root=self.data_root, data_file="test_dataset_new.mat", data_name="test_data"
             )
 
     def train_dataloader(self):

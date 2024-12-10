@@ -10,7 +10,8 @@ class MultimodalDecoder(nn.Module):
         self.embed_dim = embed_dim
         self.future_steps = future_steps
 
-        self.multimodal_proj = nn.Linear(embed_dim, 6 * embed_dim)
+        self.multimodal_proj = nn.Linear(embed_dim, embed_dim)
+        # self.multimodal_proj = nn.Linear(embed_dim, 6 * embed_dim)
 
         self.loc = nn.Sequential(
             nn.Linear(embed_dim, 256),
@@ -28,8 +29,11 @@ class MultimodalDecoder(nn.Module):
         )
 
     def forward(self, x):
-        x = self.multimodal_proj(x).view(-1, 6, self.embed_dim)
-        loc = self.loc(x).view(-1, 6, self.future_steps, 2)
+        # x = self.multimodal_proj(x).view(-1, 1, self.embed_dim)
+        # loc = self.loc(x).view(-1, 1, self.future_steps, 2)
+        # pi = self.pi(x).squeeze(-1)
+        x = self.multimodal_proj(x).view(-1, self.embed_dim)
+        loc = self.loc(x).view(-1, self.future_steps, 2)
         pi = self.pi(x).squeeze(-1)
 
         return loc, pi

@@ -5,7 +5,7 @@ defaults:
   # - _self_
 
 seed: 2333
-monitor: val_Accuracy
+monitor: val_minFDE1
 save_top_k: 10
 
 data_root:
@@ -19,7 +19,7 @@ gpus: 1
 sync_bn: true
 batch_size: 32
 epochs: 60
-warmup_epochs: 10
+warmup_epochs: 3
 
 # optimizer
 lr: 0.001

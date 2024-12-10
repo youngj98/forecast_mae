@@ -75,9 +75,11 @@ class AgentEmbeddingLayer(nn.Module):
             lateral_conv(out[i]) for i, lateral_conv in enumerate(self.lateral_convs)
         ]
         for i in range(len(out) - 1, 0, -1):
+            scale_factor = laterals[i - 1].shape[-1] / laterals[i].shape[-1]
+            
             laterals[i - 1] = laterals[i - 1] + F.interpolate(
                 laterals[i],
-                scale_factor=(laterals[i - 1].shape[-1] / laterals[i].shape[-1]),
+                scale_factor=[scale_factor],
                 mode="linear",
                 align_corners=False,
             )

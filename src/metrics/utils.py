@@ -9,6 +9,9 @@ def sort_predictions(predictions, probability, k=6):
     Returns:
         torch.Tensor: The sorted predictions [b, k', t, 2].
     """
+    # B, T, D = predictions.shape
+    # predictions = predictions.view(B, k, T, D)
+    # probability = probability.view(B, k)
     indices = torch.argsort(probability, dim=-1, descending=True)
     sorted_prob = probability[torch.arange(probability.size(0))[:, None], indices]
     sorted_predictions = predictions[
